@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link as ScrollLink } from 'react-scroll';
+import { MapPin } from 'lucide-react';
 
 const Hero = () => {
   return (
@@ -27,16 +27,15 @@ const Hero = () => {
             25.12.2024
           </p>
           
-          <ScrollLink
-            to="rsvp"
-            spy={true}
-            smooth={true}
-            offset={-70}
-            duration={800}
-            className="inline-block mt-8 px-8 py-3 border-2 border-white hover:bg-white hover:text-wedding-maroon transition-colors duration-300 font-medium tracking-wide uppercase text-sm animate-fade-in-delayed"
+          <a
+            href="https://maps.app.goo.gl/tQCb8FZ4Cjnag58i6"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 mt-8 px-8 py-3 border-2 border-white hover:bg-white hover:text-wedding-maroon transition-colors duration-300 font-medium tracking-wide uppercase text-sm animate-fade-in-delayed"
           >
-            RSVP
-          </ScrollLink>
+            <MapPin size={18} />
+            Get Directions
+          </a>
         </div>
       </div>
     </section>

@@ -26,7 +26,7 @@ const Navbar = () => {
     { name: 'Our Story', to: 'story' },
     { name: 'Events', to: 'events' },
     { name: 'Gallery', to: 'gallery' },
-    { name: 'RSVP', to: 'rsvp' },
+    { name: 'Location', to: 'location' },
   ];
 
   return (
