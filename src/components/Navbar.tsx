@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link as ScrollLink } from 'react-scroll';
+import { Link as RouterLink } from 'react-router-dom';
+import { UserRound } from 'lucide-react';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -53,7 +55,7 @@ const Navbar = () => {
           </ScrollLink>
         </div>
 
-        <div className="hidden md:flex space-x-8">
+        <div className="hidden md:flex space-x-8 items-center">
           {navLinks.map((link) => (
             <ScrollLink
               key={link.name}
@@ -69,6 +71,18 @@ const Navbar = () => {
               {link.name}
             </ScrollLink>
           ))}
+          
+          <RouterLink
+            to="/admin"
+            className={`flex items-center gap-1.5 font-montserrat text-sm uppercase font-medium tracking-wider transition-colors hover:text-wedding-gold ${
+              isScrolled 
+                ? 'text-wedding-maroon border-wedding-maroon border px-4 py-1.5 rounded hover:bg-wedding-maroon hover:text-white' 
+                : 'text-white border-white border px-4 py-1.5 rounded hover:bg-white hover:text-wedding-maroon'
+            }`}
+          >
+            <UserRound size={16} />
+            Sign In
+          </RouterLink>
         </div>
 
         <div className="md:hidden">
@@ -109,6 +123,14 @@ const Navbar = () => {
                 {link.name}
               </ScrollLink>
             ))}
+            <RouterLink
+              to="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-center gap-1.5 text-wedding-maroon py-2 px-4 text-center uppercase text-sm font-medium hover:bg-gray-50 mt-2 border-t border-gray-100 pt-3"
+            >
+              <UserRound size={16} />
+              Sign In
+            </RouterLink>
           </div>
         </div>
       )}
