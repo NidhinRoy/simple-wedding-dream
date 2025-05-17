@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Palette, MapPin, Image, Move, User, LogIn, LogOut } from 'lucide-react';
+import { Palette, MapPin, Image, CalendarClock, User, LogIn, LogOut, MailCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import PhotoManager from '@/components/admin/PhotoManager';
 import ThemeEditor from '@/components/admin/ThemeEditor';
 import LocationEditor from '@/components/admin/LocationEditor';
 import CoupleDetails from '@/components/admin/CoupleDetails';
+import TimelineEditor from '@/components/admin/TimelineEditor';
+import RSVPManager from '@/components/admin/RSVPManager';
 import { initializeWeddingData } from '@/services/firebaseService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -146,10 +148,18 @@ const Admin = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="photos">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-8">
+          <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 mb-8">
             <TabsTrigger value="photos" className="flex items-center gap-2">
               <Image className="h-4 w-4" />
               <span>Photos</span>
+            </TabsTrigger>
+            <TabsTrigger value="timeline" className="flex items-center gap-2">
+              <CalendarClock className="h-4 w-4" />
+              <span>Timeline</span>
+            </TabsTrigger>
+            <TabsTrigger value="rsvp" className="flex items-center gap-2">
+              <MailCheck className="h-4 w-4" />
+              <span>RSVPs</span>
             </TabsTrigger>
             <TabsTrigger value="theme" className="flex items-center gap-2">
               <Palette className="h-4 w-4" />
@@ -167,6 +177,14 @@ const Admin = () => {
           
           <TabsContent value="photos">
             <PhotoManager />
+          </TabsContent>
+          
+          <TabsContent value="timeline">
+            <TimelineEditor />
+          </TabsContent>
+          
+          <TabsContent value="rsvp">
+            <RSVPManager />
           </TabsContent>
           
           <TabsContent value="theme">

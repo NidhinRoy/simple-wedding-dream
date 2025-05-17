@@ -1,3 +1,4 @@
+
 import { 
   collection, 
   doc, 
@@ -48,6 +49,25 @@ export interface WeddingDetails {
   story: string;
 }
 
+export interface TimelineEvent {
+  id: string;
+  title: string;
+  time: string;
+  description: string;
+  order: number;
+}
+
+export interface GuestRSVP {
+  id: string;
+  name: string;
+  email: string;
+  attending: boolean;
+  plusOne: boolean;
+  dietaryRestrictions: string;
+  message: string;
+  timestamp: number;
+}
+
 // Initial data setup
 export const initializeWeddingData = async () => {
   try {
@@ -75,6 +95,30 @@ export const initializeWeddingData = async () => {
           story: "Our love story began when we met at a coffee shop..."
         }
       });
+      
+      // Initialize default timeline events
+      const timelineRef = collection(db, "timeline");
+      const defaultEvents = [
+        {
+          id: uuidv4(),
+          title: "Ceremony",
+          time: "10:00 AM",
+          description: "Main wedding ceremony at the venue",
+          order: 0
+        },
+        {
+          id: uuidv4(),
+          title: "Reception",
+          time: "6:00 PM",
+          description: "Dinner and celebrations",
+          order: 1
+        }
+      ];
+      
+      for (const event of defaultEvents) {
+        await setDoc(doc(timelineRef, event.id), event);
+      }
+      
       return true;
     }
     return false;
@@ -244,6 +288,112 @@ export const updatePhotoOrder = async (photos: PhotoItem[]): Promise<void> => {
     await Promise.all(updatePromises);
   } catch (error) {
     console.error("Error updating photo order:", error);
+    throw error;
+  }
+};
+
+// Timeline Event Management
+export const getTimelineEvents = async (): Promise<TimelineEvent[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "timeline"));
+    const events: TimelineEvent[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      const eventData = doc.data() as TimelineEvent;
+      eventData.id = doc.id;
+      events.push(eventData);
+    });
+    
+    // Sort by order
+    return events.sort((a, b) => a.order - b.order);
+  } catch (error) {
+    console.error("Error getting timeline events:", error);
+    throw error;
+  }
+};
+
+export const addTimelineEvent = async (event: Omit<TimelineEvent, 'id'>): Promise<TimelineEvent> => {
+  try {
+    const id = uuidv4();
+    const eventData = { ...event, id };
+    await setDoc(doc(db, "timeline", id), eventData);
+    return eventData;
+  } catch (error) {
+    console.error("Error adding timeline event:", error);
+    throw error;
+  }
+};
+
+export const updateTimelineEvent = async (event: TimelineEvent): Promise<void> => {
+  try {
+    await updateDoc(doc(db, "timeline", event.id), { ...event });
+  } catch (error) {
+    console.error("Error updating timeline event:", error);
+    throw error;
+  }
+};
+
+export const deleteTimelineEvent = async (eventId: string): Promise<void> => {
+  try {
+    await deleteDoc(doc(db, "timeline", eventId));
+  } catch (error) {
+    console.error("Error deleting timeline event:", error);
+    throw error;
+  }
+};
+
+export const updateTimelineOrder = async (events: TimelineEvent[]): Promise<void> => {
+  try {
+    const updatePromises = events.map((event, index) => {
+      return updateDoc(doc(db, "timeline", event.id), { order: index });
+    });
+    
+    await Promise.all(updatePromises);
+  } catch (error) {
+    console.error("Error updating timeline order:", error);
+    throw error;
+  }
+};
+
+// RSVP Management
+export const getRSVPs = async (): Promise<GuestRSVP[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "rsvps"));
+    const rsvps: GuestRSVP[] = [];
+    
+    querySnapshot.forEach((doc) => {
+      const rsvpData = doc.data() as GuestRSVP;
+      rsvpData.id = doc.id;
+      rsvps.push(rsvpData);
+    });
+    
+    // Sort by timestamp, most recent first
+    return rsvps.sort((a, b) => b.timestamp - a.timestamp);
+  } catch (error) {
+    console.error("Error getting RSVPs:", error);
+    throw error;
+  }
+};
+
+export const submitRSVP = async (rsvp: Omit<GuestRSVP, 'id' | 'timestamp'>): Promise<GuestRSVP> => {
+  try {
+    const id = uuidv4();
+    const timestamp = Date.now();
+    const rsvpData: GuestRSVP = { ...rsvp, id, timestamp };
+    
+    await setDoc(doc(db, "rsvps", id), rsvpData);
+    return rsvpData;
+  } catch (error) {
+    console.error("Error submitting RSVP:", error);
+    throw error;
+  }
+};
+
+export const deleteRSVP = async (rsvpId: string): Promise<void> => {
+  try {
+    await deleteDoc(doc(db, "rsvps", rsvpId));
+  } catch (error) {
+    console.error("Error deleting RSVP:", error);
     throw error;
   }
 };
