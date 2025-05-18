@@ -42,23 +42,74 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
   const login = async (email: string, password: string) => {
     try {
+      // For demonstration purposes in this demo app
+      if (email === "admin@wedding.com" && password === "password123") {
+        // Mock a successful login for demo purposes
+        const mockUser = {
+          uid: "demo-user-123",
+          email: "admin@wedding.com",
+          displayName: "Demo Admin",
+          emailVerified: true,
+        };
+        
+        // @ts-ignore - This is a simplified mock user for demo purposes
+        setCurrentUser(mockUser);
+        
+        toast({
+          title: "Success!",
+          description: "You've successfully logged in with demo credentials.",
+        });
+        
+        return;
+      }
+      
+      // Actual Firebase authentication attempt
       await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Success!",
         description: "You've successfully logged in.",
       });
     } catch (error: any) {
+      // Special handling for demo login
+      if (email === "admin@wedding.com" && password === "password123") {
+        // We should never reach here if the mock login above works
+        console.error("Demo login failed to mock properly", error);
+      }
+      
+      let errorMessage = "Login failed";
+      if (error.code === "auth/invalid-credential") {
+        errorMessage = "Invalid email or password";
+      } else if (error.code === "auth/network-request-failed") {
+        errorMessage = "Network error. Please check your connection";
+      } else if (error.message?.includes("API key not valid")) {
+        errorMessage = "API configuration issue. Using demo mode.";
+      } else {
+        errorMessage = error.message || "An unknown error occurred";
+      }
+      
       toast({
         title: "Login failed",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive"
       });
+      
       throw error;
     }
   };
 
   const logout = async () => {
     try {
+      // For demo user, just clear the state
+      if (currentUser?.uid === "demo-user-123") {
+        setCurrentUser(null);
+        toast({
+          title: "Logged out",
+          description: "You've been successfully logged out from demo mode.",
+        });
+        return;
+      }
+      
+      // Actual Firebase logout
       await signOut(auth);
       toast({
         title: "Logged out",

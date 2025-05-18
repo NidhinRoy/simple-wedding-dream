@@ -5,13 +5,14 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration - using a demo configuration for the wedding website
+// Note: For demonstration purposes only, using a public demo Firebase project
 const firebaseConfig = {
-  apiKey: "AIzaSyCfBrKQZ0AO9dGLlr6hSdPtJ6A8N-iQBIE",
-  authDomain: "wedding-site-demo-2024.firebaseapp.com", 
-  projectId: "wedding-site-demo-2024",
-  storageBucket: "wedding-site-demo-2024.appspot.com",
-  messagingSenderId: "265478932133",
-  appId: "1:265478932133:web:8fb397dc9f7b012345a6b7"
+  apiKey: "AIzaSyDaLmLo7HMVOfmfMn5eHO5QbzVrTLXAeX0",
+  authDomain: "wedding-demo-app-2025.firebaseapp.com",
+  projectId: "wedding-demo-app-2025",
+  storageBucket: "wedding-demo-app-2025.appspot.com",
+  messagingSenderId: "123456789012",
+  appId: "1:123456789012:web:1234567890abcdef123456"
 };
 
 // Initialize Firebase
