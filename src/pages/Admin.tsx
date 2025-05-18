@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Palette, MapPin, Image, CalendarClock, User, LogIn, LogOut, MailCheck } from 'lucide-react';
+import { Palette, MapPin, Image, CalendarClock, User, LogIn, LogOut, MailCheck, WifiOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import PhotoManager from '@/components/admin/PhotoManager';
 import ThemeEditor from '@/components/admin/ThemeEditor';
@@ -19,7 +19,22 @@ const Admin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const { toast } = useToast();
+  
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
   
   useEffect(() => {
     // Initialize default data in Firebase if it doesn't exist
@@ -53,13 +68,35 @@ const Admin = () => {
       return;
     }
     
+    if (isOffline) {
+      toast({
+        title: "Offline Mode",
+        description: "You appear to be offline. Please check your internet connection and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoggingIn(true);
     try {
       await login(email, password);
       setEmail('');
       setPassword('');
-    } catch (error) {
-      // Error handling is done in the login function
+    } catch (error: any) {
+      // Show a more helpful message for the API key error
+      if (error.message?.includes("API key not valid")) {
+        toast({
+          title: "Authentication Error",
+          description: "The Firebase configuration needs to be updated with valid credentials. Please contact the developer.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Login Failed",
+          description: error.message || "Failed to login. Please check your credentials.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoggingIn(false);
     }
@@ -72,6 +109,13 @@ const Admin = () => {
           <div className="text-center">
             <h1 className="font-dancing text-3xl text-wedding-maroon">Wedding Admin</h1>
             <p className="mt-2 text-gray-600">Sign in to manage your wedding website</p>
+            
+            {isOffline && (
+              <div className="mt-4 p-3 bg-amber-50 text-amber-700 rounded-md flex items-center">
+                <WifiOff className="h-5 w-5 mr-2" />
+                <span>You're currently offline. Some features may be limited.</span>
+              </div>
+            )}
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleLogin}>
             <div className="space-y-4">
@@ -109,7 +153,7 @@ const Admin = () => {
               <Button 
                 type="submit" 
                 className="w-full flex justify-center py-2 px-4 bg-wedding-maroon hover:bg-wedding-deep-red"
-                disabled={isLoggingIn}
+                disabled={isLoggingIn || isOffline}
               >
                 <LogIn className="mr-2 h-4 w-4" />
                 {isLoggingIn ? 'Signing in...' : 'Sign in'}
