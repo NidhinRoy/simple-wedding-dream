@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { getRSVPs, deleteRSVP, GuestRSVP } from '@/services/firebaseService';
+import { getRSVPs, deleteRSVP, GuestRSVP } from '@/services/firebase';
 import { Check, X, Calendar, Mail, MessageSquare, Trash2, UserPlus, Utensils } from 'lucide-react';
 import {
   Table,

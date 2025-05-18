@@ -11,7 +11,7 @@ import LocationEditor from '@/components/admin/LocationEditor';
 import CoupleDetails from '@/components/admin/CoupleDetails';
 import TimelineEditor from '@/components/admin/TimelineEditor';
 import RSVPManager from '@/components/admin/RSVPManager';
-import { initializeWeddingData } from '@/services/firebaseService';
+import { initializeWeddingData } from '@/services/firebase/initialization';
 import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {

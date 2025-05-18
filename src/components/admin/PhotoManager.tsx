@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, Upload, MoveVertical } from 'lucide-react';
-import { PhotoItem, getPhotos, uploadPhoto, deletePhoto, updatePhotoOrder } from '@/services/firebaseService';
+import { PhotoItem, getPhotos, uploadPhoto, deletePhoto, updatePhotoOrder } from '@/services/firebase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 const PhotoManager = () => {
