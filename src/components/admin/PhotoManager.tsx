@@ -4,9 +4,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Trash2, Upload, MoveVertical } from 'lucide-react';
+import { Trash2, Upload, MoveVertical, Image } from 'lucide-react';
 import { PhotoItem, getPhotos, uploadPhoto, deletePhoto, updatePhotoOrder } from '@/services/firebase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { isOffline } from '@/lib/firebase';
 
 const PhotoManager = () => {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -14,10 +15,28 @@ const PhotoManager = () => {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [altText, setAltText] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [offlineMode, setOfflineMode] = useState(isOffline());
   const { toast } = useToast();
 
   useEffect(() => {
     fetchPhotos();
+    
+    const handleOnlineStatusChange = () => {
+      setOfflineMode(isOffline());
+      // Refetch photos when going online
+      if (!isOffline()) {
+        fetchPhotos();
+      }
+    };
+    
+    window.addEventListener('online', handleOnlineStatusChange);
+    window.addEventListener('offline', handleOnlineStatusChange);
+    
+    return () => {
+      window.removeEventListener('online', handleOnlineStatusChange);
+      window.removeEventListener('offline', handleOnlineStatusChange);
+    };
   }, []);
 
   const fetchPhotos = async () => {
@@ -38,7 +57,20 @@ const PhotoManager = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      
+      // Create a preview URL
+      const objectUrl = URL.createObjectURL(selectedFile);
+      setPreviewUrl(objectUrl);
+      
+      // Auto-fill alt text with filename if empty
+      if (!altText) {
+        const fileName = selectedFile.name.split('.')[0]
+          .replace(/-/g, ' ')
+          .replace(/_/g, ' ');
+        setAltText(fileName);
+      }
     }
   };
 
@@ -63,10 +95,13 @@ const PhotoManager = () => {
       // Reset form
       setFile(null);
       setAltText('');
+      setPreviewUrl(null);
       
       toast({
         title: "Success",
-        description: "Photo uploaded successfully",
+        description: offlineMode 
+          ? "Photo saved in offline mode. Will sync when online."
+          : "Photo uploaded successfully",
       });
       
       // Reset file input
@@ -91,7 +126,9 @@ const PhotoManager = () => {
       
       toast({
         title: "Success",
-        description: "Photo deleted successfully",
+        description: offlineMode 
+          ? "Photo removed in offline mode. Will sync when online."
+          : "Photo deleted successfully",
       });
     } catch (error: any) {
       toast({
@@ -113,12 +150,14 @@ const PhotoManager = () => {
     setPhotos(reorderedPhotos);
     
     try {
-      // Save the new order to Firebase
+      // Save the new order
       await updatePhotoOrder(reorderedPhotos);
       
       toast({
         title: "Success",
-        description: "Photo order updated",
+        description: offlineMode 
+          ? "Photo order updated in offline mode. Will sync when online."
+          : "Photo order updated",
       });
     } catch (error: any) {
       // If error, revert to previous state
@@ -134,6 +173,23 @@ const PhotoManager = () => {
 
   return (
     <div className="space-y-8">
+      {offlineMode && (
+        <div className="bg-amber-50 border border-amber-200 p-4 rounded-md flex items-center space-x-3">
+          <div className="bg-amber-100 rounded-full p-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-700">
+              <path d="M14.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+              <path d="M16.5 8.5a4 4 0 0 0-6.5 4.7"></path>
+              <path d="M19.5 10a7 7 0 0 0-13 4"></path>
+              <line x1="4" x2="20" y1="16" y2="16"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 className="font-medium text-amber-800">Offline Mode Active</h3>
+            <p className="text-sm text-amber-700">Changes will be saved locally and synced when you're back online.</p>
+          </div>
+        </div>
+      )}
+      
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4">Upload New Photo</h3>
         <form onSubmit={handleUpload} className="space-y-4">
@@ -147,6 +203,17 @@ const PhotoManager = () => {
               disabled={uploading}
             />
           </div>
+          
+          {previewUrl && (
+            <div className="border rounded-md overflow-hidden w-full max-w-xs mx-auto">
+              <img 
+                src={previewUrl} 
+                alt="Preview" 
+                className="w-full h-48 object-cover" 
+              />
+            </div>
+          )}
+          
           <div className="space-y-2">
             <Label htmlFor="alt-text">Description (Alt Text)</Label>
             <Input
@@ -185,7 +252,13 @@ const PhotoManager = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-wedding-maroon"></div>
           </div>
         ) : photos.length === 0 ? (
-          <p className="text-center text-gray-500 py-4">No photos in the gallery yet</p>
+          <div className="text-center py-12">
+            <div className="mx-auto w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <Image size={36} className="text-gray-400" />
+            </div>
+            <p className="text-center text-gray-500">No photos in the gallery yet</p>
+            <p className="text-sm text-gray-400 mt-2">Upload your first photo to get started</p>
+          </div>
         ) : (
           <DragDropContext onDragEnd={onDragEnd}>
             <Droppable droppableId="gallery-photos">
