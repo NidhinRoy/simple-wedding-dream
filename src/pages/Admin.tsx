@@ -16,8 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {
   const { currentUser, login, logout } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@wedding.com');
+  const [password, setPassword] = useState('password123');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const { toast } = useToast();
@@ -80,8 +80,7 @@ const Admin = () => {
     setIsLoggingIn(true);
     try {
       await login(email, password);
-      setEmail('');
-      setPassword('');
+      // Don't clear the credentials on successful login for demo purposes
     } catch (error: any) {
       // Show a more helpful message for the API key error
       if (error.message?.includes("API key not valid")) {
@@ -160,9 +159,11 @@ const Admin = () => {
               </Button>
             </div>
             
-            <p className="text-center text-sm text-gray-500 mt-4">
-              Default login: admin@wedding.com / password123
-            </p>
+            <div className="p-4 bg-blue-50 text-blue-800 rounded-md">
+              <h3 className="font-medium mb-1">Demo Credentials:</h3>
+              <p className="text-sm mb-1"><strong>Email:</strong> admin@wedding.com</p>
+              <p className="text-sm"><strong>Password:</strong> password123</p>
+            </div>
           </form>
         </div>
       </div>
