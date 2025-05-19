@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { getTimelineEvents, TimelineEvent } from '@/services/firebaseService';
+import { getTimelineEvents } from '@/services/firebase';
+import { TimelineEvent } from '@/services/firebase/types';
 import { useToast } from '@/hooks/use-toast';
 import { Clock } from 'lucide-react';
 
@@ -28,6 +29,19 @@ const Timeline = () => {
     };
 
     fetchEvents();
+    
+    // Refresh events when page becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchEvents();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [toast]);
 
   if (loading) {

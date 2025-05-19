@@ -1,0 +1,46 @@
+
+:root {
+  --wedding-maroon: #8B0000;
+  --wedding-deep-red: #600000;
+  --wedding-gold: #D4AF37;
+  --wedding-soft-cream: #FDF8F0;
+  --wedding-background: #FFFFFF;
+  --wedding-text: #333333;
+}
+
+/* Theme utility classes */
+.bg-wedding-maroon {
+  background-color: var(--wedding-maroon);
+}
+
+.bg-wedding-gold {
+  background-color: var(--wedding-gold);
+}
+
+.bg-wedding-soft-cream {
+  background-color: var(--wedding-soft-cream);
+}
+
+.text-wedding-maroon {
+  color: var(--wedding-maroon);
+}
+
+.text-wedding-gold {
+  color: var(--wedding-gold);
+}
+
+.border-wedding-gold {
+  border-color: var(--wedding-gold);
+}
+
+.border-wedding-maroon {
+  border-color: var(--wedding-maroon);
+}
+
+.hover\:bg-wedding-deep-red:hover {
+  background-color: var(--wedding-deep-red);
+}
+
+.hover\:text-wedding-gold:hover {
+  color: var(--wedding-gold);
+}
