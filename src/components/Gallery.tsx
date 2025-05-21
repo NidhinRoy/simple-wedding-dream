@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getPhotos } from '@/services/firebase';
+import { getPhotos } from '@/services/supabase'; // Updated import path
 import { PhotoItem } from '@/services/firebase/types';
 import { useToast } from '@/hooks/use-toast';
 import { Image } from 'lucide-react';
