@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Palette, MapPin, Image, CalendarClock, User, LogIn, LogOut, MailCheck, WifiOff } from 'lucide-react';
+import { Palette, MapPin, Image, CalendarClock, User, LogIn, LogOut, MailCheck, WifiOff, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import PhotoManager from '@/components/admin/PhotoManager';
 import ThemeEditor from '@/components/admin/ThemeEditor';
@@ -14,11 +15,12 @@ import { initializeWeddingData } from '@/services/supabase/initialization';
 import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {
-  const { currentUser, login, logout } = useAuth();
+  const { currentUser, session, login, logout } = useAuth();
   const [email, setEmail] = useState('admin@wedding.com');
   const [password, setPassword] = useState('password123');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [showDebug, setShowDebug] = useState(false);
   const { toast } = useToast();
   
   // Monitor online/offline status
@@ -38,6 +40,8 @@ const Admin = () => {
   useEffect(() => {
     // Initialize default data in Supabase if it doesn't exist
     if (currentUser) {
+      console.log("Admin page: User is authenticated", currentUser.email);
+      
       const setupData = async () => {
         try {
           const created = await initializeWeddingData();
@@ -53,6 +57,8 @@ const Admin = () => {
       };
       
       setupData();
+    } else {
+      console.log("Admin page: No authenticated user");
     }
   }, [currentUser, toast]);
   
@@ -78,11 +84,12 @@ const Admin = () => {
     
     setIsLoggingIn(true);
     try {
+      console.log("Attempting login from form with:", email);
       await login(email, password);
       // Don't clear the credentials on successful login for demo purposes
     } catch (error: any) {
       // Error handling is done inside login function
-      console.error("Login error:", error);
+      console.error("Login error in admin page:", error);
     } finally {
       setIsLoggingIn(false);
     }
@@ -150,6 +157,27 @@ const Admin = () => {
               <h3 className="font-medium mb-1">Demo Credentials:</h3>
               <p className="text-sm mb-1"><strong>Email:</strong> admin@wedding.com</p>
               <p className="text-sm"><strong>Password:</strong> password123</p>
+            </div>
+            
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDebug(!showDebug)}
+                className="text-gray-500 flex items-center"
+              >
+                <Info className="h-3 w-3 mr-1" />
+                {showDebug ? "Hide Debug Info" : "Show Debug Info"}
+              </Button>
+              
+              {showDebug && (
+                <div className="mt-2 p-3 bg-gray-50 text-xs font-mono text-gray-600 rounded border overflow-auto max-h-40">
+                  <p>Session: {session ? "✅" : "❌"}</p>
+                  <p>User: {currentUser?.email || "None"}</p>
+                  <p>Auth Status: {currentUser ? "Authenticated" : "Not Authenticated"}</p>
+                </div>
+              )}
             </div>
           </form>
         </div>
