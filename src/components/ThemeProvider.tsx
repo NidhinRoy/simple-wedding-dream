@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { getTheme } from '@/services/firebase';
+import { getTheme } from '@/services/supabase';
 import { ThemeColors } from '@/services/firebase/types';
 
 // Default theme settings as a fallback

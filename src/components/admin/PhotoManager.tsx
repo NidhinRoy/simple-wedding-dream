@@ -1,13 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Trash2, Upload, MoveVertical, Image } from 'lucide-react';
-import { PhotoItem, getPhotos, uploadPhoto, deletePhoto, updatePhotoOrder } from '@/services/firebase';
+import { PhotoItem, getPhotos, uploadPhoto, deletePhoto, updatePhotoOrder } from '@/services/supabase';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { isOffline } from '@/lib/firebase';
 
 const PhotoManager = () => {
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -16,16 +14,16 @@ const PhotoManager = () => {
   const [file, setFile] = useState<File | null>(null);
   const [altText, setAltText] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [offlineMode, setOfflineMode] = useState(isOffline());
+  const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchPhotos();
     
     const handleOnlineStatusChange = () => {
-      setOfflineMode(isOffline());
+      setOfflineMode(!navigator.onLine);
       // Refetch photos when going online
-      if (!isOffline()) {
+      if (navigator.onLine) {
         fetchPhotos();
       }
     };

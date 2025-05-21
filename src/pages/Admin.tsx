@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +10,7 @@ import LocationEditor from '@/components/admin/LocationEditor';
 import CoupleDetails from '@/components/admin/CoupleDetails';
 import TimelineEditor from '@/components/admin/TimelineEditor';
 import RSVPManager from '@/components/admin/RSVPManager';
-import { initializeWeddingData } from '@/services/firebase/initialization';
+import { initializeWeddingData } from '@/services/supabase/initialization';
 import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {
@@ -37,7 +36,7 @@ const Admin = () => {
   }, []);
   
   useEffect(() => {
-    // Initialize default data in Firebase if it doesn't exist
+    // Initialize default data in Supabase if it doesn't exist
     if (currentUser) {
       const setupData = async () => {
         try {
@@ -82,20 +81,8 @@ const Admin = () => {
       await login(email, password);
       // Don't clear the credentials on successful login for demo purposes
     } catch (error: any) {
-      // Show a more helpful message for the API key error
-      if (error.message?.includes("API key not valid")) {
-        toast({
-          title: "Authentication Error",
-          description: "The Firebase configuration needs to be updated with valid credentials. Please contact the developer.",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Login Failed",
-          description: error.message || "Failed to login. Please check your credentials.",
-          variant: "destructive"
-        });
-      }
+      // Error handling is done inside login function
+      console.error("Login error:", error);
     } finally {
       setIsLoggingIn(false);
     }
@@ -177,7 +164,7 @@ const Admin = () => {
           <h1 className="font-dancing text-2xl text-wedding-maroon">Wedding Site Editor</h1>
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-500 hidden md:inline-block">
-              Signed in as {currentUser.email}
+              Signed in as {currentUser?.email}
             </span>
             <Button 
               variant="outline" 

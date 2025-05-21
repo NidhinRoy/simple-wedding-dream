@@ -1,4 +1,3 @@
-
 // Update import path at the top of the file
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +12,7 @@ import {
   updateTimelineEvent,
   deleteTimelineEvent,
   updateTimelineOrder
-} from '@/services/firebase';
+} from '@/services/supabase';
 import { Plus, Trash2, MoveVertical, Calendar } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
@@ -124,7 +123,7 @@ const TimelineEditor = () => {
     setEvents(reorderedEvents);
     
     try {
-      // Save the new order to Firebase
+      // Save the new order
       await updateTimelineOrder(reorderedEvents);
       
       toast({

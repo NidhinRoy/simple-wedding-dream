@@ -1,16 +1,12 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  signInWithEmailAndPassword, 
-  onAuthStateChanged, 
-  signOut, 
-  User 
-} from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   currentUser: User | null;
+  session: Session | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -28,33 +24,60 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setCurrentUser(session?.user ?? null);
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setCurrentUser(session?.user ?? null);
       setLoading(false);
     });
 
-    return unsubscribe;
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
       // For demonstration purposes in this demo app
       if (email === "admin@wedding.com" && password === "password123") {
-        // Mock a successful login for demo purposes
-        const mockUser = {
-          uid: "demo-user-123",
-          email: "admin@wedding.com",
-          displayName: "Demo Admin",
-          emailVerified: true,
-        };
-        
-        // @ts-ignore - This is a simplified mock user for demo purposes
-        setCurrentUser(mockUser);
-        
+        // Since we can't mock a Supabase user easily, let's attempt to sign in
+        // but with a special notification
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          // If the demo user doesn't exist in Supabase yet, create it
+          // In a real app, you would never do this, but for demo purposes, it's acceptable
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password
+          });
+
+          if (signUpError) {
+            throw signUpError;
+          }
+
+          toast({
+            title: "Demo Mode",
+            description: "You've been logged in with demo credentials. In a real app, you would need to sign up first.",
+          });
+
+          return;
+        }
+
         toast({
           title: "Success!",
           description: "You've successfully logged in with demo credentials.",
@@ -63,26 +86,24 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
         return;
       }
       
-      // Actual Firebase authentication attempt
-      await signInWithEmailAndPassword(auth, email, password);
+      // Actual Supabase authentication
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
       toast({
         title: "Success!",
         description: "You've successfully logged in.",
       });
     } catch (error: any) {
-      // Special handling for demo login
-      if (email === "admin@wedding.com" && password === "password123") {
-        // We should never reach here if the mock login above works
-        console.error("Demo login failed to mock properly", error);
-      }
-      
       let errorMessage = "Login failed";
-      if (error.code === "auth/invalid-credential") {
+      if (error.message?.includes("Invalid login credentials")) {
         errorMessage = "Invalid email or password";
-      } else if (error.code === "auth/network-request-failed") {
+      } else if (error.message?.includes("network")) {
         errorMessage = "Network error. Please check your connection";
-      } else if (error.message?.includes("API key not valid")) {
-        errorMessage = "API configuration issue. Using demo mode.";
       } else {
         errorMessage = error.message || "An unknown error occurred";
       }
@@ -99,18 +120,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
   const logout = async () => {
     try {
-      // For demo user, just clear the state
-      if (currentUser?.uid === "demo-user-123") {
-        setCurrentUser(null);
-        toast({
-          title: "Logged out",
-          description: "You've been successfully logged out from demo mode.",
-        });
-        return;
-      }
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
       
-      // Actual Firebase logout
-      await signOut(auth);
       toast({
         title: "Logged out",
         description: "You've been successfully logged out.",
@@ -127,6 +139,7 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
 
   const value = {
     currentUser,
+    session,
     loading,
     login,
     logout

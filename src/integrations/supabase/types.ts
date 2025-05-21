@@ -9,7 +9,174 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      photos: {
+        Row: {
+          alt: string
+          created_at: string | null
+          id: string
+          order: number | null
+          src: string
+        }
+        Insert: {
+          alt: string
+          created_at?: string | null
+          id?: string
+          order?: number | null
+          src: string
+        }
+        Update: {
+          alt?: string
+          created_at?: string | null
+          id?: string
+          order?: number | null
+          src?: string
+        }
+        Relationships: []
+      }
+      rsvps: {
+        Row: {
+          attending: boolean
+          created_at: string | null
+          dietary_restrictions: string | null
+          email: string
+          id: string
+          message: string | null
+          name: string
+          plus_one: boolean
+          timestamp: number
+        }
+        Insert: {
+          attending?: boolean
+          created_at?: string | null
+          dietary_restrictions?: string | null
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          plus_one?: boolean
+          timestamp: number
+        }
+        Update: {
+          attending?: boolean
+          created_at?: string | null
+          dietary_restrictions?: string | null
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          plus_one?: boolean
+          timestamp?: number
+        }
+        Relationships: []
+      }
+      themes: {
+        Row: {
+          accent_color: string
+          background_color: string
+          created_at: string | null
+          id: string
+          primary_color: string
+          secondary_color: string
+          text_color: string
+        }
+        Insert: {
+          accent_color?: string
+          background_color?: string
+          created_at?: string | null
+          id?: string
+          primary_color?: string
+          secondary_color?: string
+          text_color?: string
+        }
+        Update: {
+          accent_color?: string
+          background_color?: string
+          created_at?: string | null
+          id?: string
+          primary_color?: string
+          secondary_color?: string
+          text_color?: string
+        }
+        Relationships: []
+      }
+      timeline_events: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          order: number
+          time: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order?: number
+          time: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          order?: number
+          time?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      venues: {
+        Row: {
+          address: string
+          created_at: string | null
+          id: string
+          maps_url: string
+          name: string
+        }
+        Insert: {
+          address?: string
+          created_at?: string | null
+          id?: string
+          maps_url?: string
+          name?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string | null
+          id?: string
+          maps_url?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      wedding_details: {
+        Row: {
+          bride_name: string
+          created_at: string | null
+          groom_name: string
+          id: string
+          story: string | null
+          wedding_date: string
+        }
+        Insert: {
+          bride_name?: string
+          created_at?: string | null
+          groom_name?: string
+          id?: string
+          story?: string | null
+          wedding_date?: string
+        }
+        Update: {
+          bride_name?: string
+          created_at?: string | null
+          groom_name?: string
+          id?: string
+          story?: string | null
+          wedding_date?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
